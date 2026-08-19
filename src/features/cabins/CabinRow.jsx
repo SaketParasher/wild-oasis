@@ -1,4 +1,10 @@
+import { forwardRef, useState } from "react";
 import styled from "styled-components";
+import { HiPencil, HiSquare2Stack, HiTrash } from 'react-icons/hi2';
+
+import { formatCurrency } from "../../utils/helpers";
+import CreateCabinForm from './CreateCabinForm';
+import { useDeleteCabin } from "./useDeleteCabin";
 
 const TableRow = styled.div`
   display: grid;
@@ -38,3 +44,33 @@ const Discount = styled.div`
   font-weight: 500;
   color: var(--color-green-700);
 `;
+
+
+// CabinRow uses forWard ref to get the ref of last cabin row
+const CabinRow = forwardRef(function CabinRow({ cabin }, ref) {
+  const [showEditForm, setShowEditForm] = useState(false);
+  const { id: cabinId, name, maxCapacity, regularPrice, discount, description, image } = cabin;
+
+  // import deleteCabinAction mutation function from useDeleteCabin hook
+  const { isDeleting, deleteCabinAction } = useDeleteCabin();
+
+  return (
+    <>
+      <TableRow ref={ref} role="row">
+        <Img src={image} alt={`${name} image`} />
+        <Cabin>{name}</Cabin>
+        <div>Max Capacity {maxCapacity} Persons</div>
+        <Price>{formatCurrency(regularPrice)}</Price>
+        <Discount>{discount}</Discount>
+        <div>
+          <button title="duplicate"><HiSquare2Stack /></button>
+          <button title="edit" onClick={() => setShowEditForm(prev => !prev)}><HiPencil /></button>
+          <button title="delete" onClick={() => deleteCabinAction(cabinId)} disabled={isDeleting}><HiTrash /></button>
+        </div>
+      </TableRow>
+      {showEditForm && <CreateCabinForm cabinToEdit={cabin} setShowEditForm={setShowEditForm} />}
+    </>
+  )
+})
+
+export default CabinRow;
