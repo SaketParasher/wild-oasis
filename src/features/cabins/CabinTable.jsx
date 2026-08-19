@@ -1,4 +1,9 @@
+import { useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
+import { getCabins } from "../../services/apiCabins";
+import Spinner from "../../ui/Spinner";
+import CabinRow from "./CabinRow";
 
 const Table = styled.div`
   border: 1px solid var(--color-grey-200);
@@ -23,3 +28,48 @@ const TableHeader = styled.header`
   color: var(--color-grey-600);
   padding: 1.6rem 2.4rem;
 `;
+
+function CabinTable({ shouldScroll, setShouldScroll }) {
+
+
+  // this ref is ued to scroll the last cabin row into the view
+  const lastCabinRef = useRef(null);
+  const { isLoading, data: cabins, error } = useQuery({
+    queryKey: ['cabins'],
+    queryFn: getCabins
+  })
+
+
+  useEffect(() => {
+    if (shouldScroll && cabins.length > 0) {
+      lastCabinRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
+      setShouldScroll(false);
+    }
+  }, [cabins, shouldScroll]);
+
+
+  if (isLoading) return <Spinner />
+
+  return (
+    <Table role="table">
+      <TableHeader role="row">
+        <div></div>
+        <div>Cabins</div>
+        <div>Capacity</div>
+        <div>Price</div>
+        <div>Discount</div>
+      </TableHeader>
+      {cabins.map((cabin, index) => <CabinRow
+        cabin={cabin}
+        key={cabin.id}
+        ref={index === cabins.length - 1 ? lastCabinRef : null}
+      />)}
+    </Table>
+  )
+}
+
+export default CabinTable;
