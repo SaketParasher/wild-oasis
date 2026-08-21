@@ -1,3 +1,5 @@
+import { createContext } from "react";
+import { useContext } from "react";
 import styled from "styled-components";
 
 const StyledTable = styled.div`
@@ -58,3 +60,42 @@ const Empty = styled.p`
   text-align: center;
   margin: 2.4rem;
 `;
+
+const TableContext = createContext()
+
+function Table({ columns, children }) {
+
+  return <TableContext.Provider value={{ columns }}>
+    <StyledTable>
+      {children}
+    </StyledTable>
+  </TableContext.Provider>
+}
+
+function Header({ children }) {
+  const { columns } = useContext(TableContext)
+  return <StyledHeader columns={columns}>
+    {children}
+  </StyledHeader>
+}
+
+function Row({ children }) {
+  const { columns } = useContext(TableContext)
+  return <StyledRow columns={columns}>
+    {children}
+  </StyledRow>
+}
+
+function Body({ data, render }) {
+  if (!data.length) {
+    return <Empty>No Data in table to Display !</Empty>
+  }
+
+  return <StyledBody>{data.map(render)}</StyledBody>
+}
+
+Table.Header = Header;
+Table.Row = Row;
+Table.Body = Body;
+
+export default Table;

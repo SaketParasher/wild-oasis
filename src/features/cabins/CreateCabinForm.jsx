@@ -44,12 +44,12 @@ const Error = styled.span`
   color: var(--color-red-700);
 `;
 
-function CreateCabinForm({ onMutationComplete, cabinToEdit = {}, setShowEditForm }) {
+function CreateCabinForm({ cabinToEdit = {}, onModalClose }) {
   // cabin data to prefill in form in case of edit
   const { id: cabinId, ...cabinEditData } = cabinToEdit;
   const isEditMode = Boolean(cabinId);
 
-  const { createUpdateCabinAction, isInserting } = useCreateUpdateCabin(isEditMode, cabinId, onMutationComplete, setShowEditForm);
+  const { createUpdateCabinAction, isInserting } = useCreateUpdateCabin(isEditMode, cabinId);
 
   const { register, handleSubmit, reset, getValues, formState: { errors } } = useForm({
     defaultValues: cabinToEdit || {}
@@ -61,16 +61,21 @@ function CreateCabinForm({ onMutationComplete, cabinToEdit = {}, setShowEditForm
       createUpdateCabinAction({ ...data, image: data.image[0] }, {
         onSuccess: () => {
           reset();
+          onModalClose?.()
         }
       });
     } else {
       const imageData = typeof data.image === "string" ? data.image : data.image[0];
-      createUpdateCabinAction({ ...data, image: imageData }, cabinId)
+      createUpdateCabinAction({ ...data, image: imageData }, {
+        onSuccess: () => {
+          onModalClose?.()
+        }
+      })
     }
   }
 
   return (
-    <Form onSubmit={handleSubmit(onCabinsSubmit)}>
+    <Form onSubmit={handleSubmit(onCabinsSubmit)} type={onModalClose ? "modal" : "regular"}>
       <FormRow>
         <Label htmlFor="name">Cabin name</Label>
         <Input type="text" id="name" {...register("name", {
@@ -131,7 +136,7 @@ function CreateCabinForm({ onMutationComplete, cabinToEdit = {}, setShowEditForm
 
       <FormRow>
         {/* type is an HTML attribute! */}
-        <Button variation="secondary" type="reset">
+        <Button variation="secondary" type="reset" onClick={() => onModalClose?.()}>
           Cancel
         </Button>
         <Button disabled={isInserting}> {isEditMode ? 'Edit Cabin' : 'Create Cabin'}</Button>
