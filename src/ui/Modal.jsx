@@ -1,4 +1,7 @@
 import styled from "styled-components";
+import { HiXMark } from "react-icons/hi2";
+import { createPortal } from "react-dom";
+import { useEffect, useRef } from 'react';
 
 const StyledModal = styled.div`
   position: fixed;
@@ -32,8 +35,8 @@ const Button = styled.button`
   transform: translateX(0.8rem);
   transition: all 0.2s;
   position: absolute;
-  top: 1.2rem;
-  right: 1.9rem;
+  top: 1rem;
+  right: 1.5rem;
 
   &:hover {
     background-color: var(--color-grey-100);
@@ -48,3 +51,39 @@ const Button = styled.button`
     color: var(--color-grey-500);
   }
 `;
+
+function Modal({ children, onClose }) {
+
+  const modalRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!modalRef.current.contains(e.target)) {
+        onClose()
+      }
+    }
+
+    // adding the even listener in capturing phase rather than bubbling phase, since click event on 
+    // add new cabin will propogate and when modal gets opened then this event listener will also get
+    // triggered and modal will be closed 
+    document.addEventListener("click", handleClickOutside, true);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside)
+    }
+  }, [onClose])
+
+  return createPortal(
+    <Overlay>
+      <StyledModal ref={modalRef}>
+        <Button onClick={onClose}>
+          <HiXMark />
+        </Button>
+        {children}
+      </StyledModal>
+    </Overlay>,
+    document.body
+  )
+}
+
+export default Modal;
