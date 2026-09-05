@@ -6,6 +6,11 @@ import Table from "../../ui/Table";
 
 import { formatCurrency } from "../../utils/helpers";
 import { formatDistanceFromNow } from "../../utils/helpers";
+import Menus from "../../ui/Menus";
+import { HiCloudArrowDown, HiCloudArrowUp, HiEye, HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
+import { useCheckOut } from "../check-in-out/useCheckOut";
+import { useDeleteBooking } from "./useDeleteBooking";
 
 const Cabin = styled.div`
   font-size: 1.6rem;
@@ -48,6 +53,11 @@ function BookingRow({
     cabins: { name: cabinName },
   },
 }) {
+
+  const navigate = useNavigate();
+  const { updatebookingAction } = useCheckOut();
+  const { deleteBookingAction } = useDeleteBooking()
+
   const statusToTagName = {
     unconfirmed: "blue",
     "checked-in": "green",
@@ -79,6 +89,17 @@ function BookingRow({
       <Tag type={statusToTagName[status]}>{status.replace("-", " ")}</Tag>
 
       <Amount>{formatCurrency(totalPrice)}</Amount>
+
+      <Menus.Menu>
+        <Menus.Toggle id={bookingId} />
+        <Menus.List id={bookingId}>
+          <Menus.Button icon={<HiEye />} handleClick={() => navigate(`/booking/${bookingId}`)}>Show Details</Menus.Button>
+          {status === 'unconfirmed' && <Menus.Button icon={<HiCloudArrowDown />} handleClick={() => navigate(`/checkin/${bookingId}`)}>Check-in</Menus.Button>}
+          {status === 'checked-in' && <Menus.Button icon={<HiCloudArrowUp />} handleClick={() => updatebookingAction({ bookingId })}>Check-out</Menus.Button>}
+          <Menus.Button icon={<HiOutlineTrash />} handleClick={() => deleteBookingAction(bookingId)}>Delete</Menus.Button>
+        </Menus.List>
+
+      </Menus.Menu>
     </Table.Row>
   );
 }

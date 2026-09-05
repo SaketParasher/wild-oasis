@@ -67,7 +67,7 @@ const CabinRow = function CabinRow({ cabin }) {
         <Cabin>{name}</Cabin>
         <div>Max Capacity {maxCapacity} Persons</div>
         <Price>{formatCurrency(regularPrice)}</Price>
-        <Discount>{discount}</Discount>
+        <Discount>{discount > 0 ? discount : '-'}</Discount>
         {/* <div>
           <button title="duplicate"></button>
           <button title="edit" onClick={() => setShowEditForm(prev => !prev)}><HiPencil /></button>

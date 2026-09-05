@@ -24,6 +24,14 @@ const Heading = styled.h1`
             `
         }
 
+        if (props.as === 'h4') {
+            return css`
+                font-size: 3rem;
+                font-weight: 600;
+                text-align: center;
+            `
+        }
+
     }}
 `;
 
