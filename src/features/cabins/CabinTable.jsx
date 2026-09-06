@@ -1,10 +1,10 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { getCabins } from "../../services/apiCabins";
 import Spinner from "../../ui/Spinner";
 import CabinRow from "./CabinRow";
 import Table from "../../ui/Table";
 import Menus from "../../ui/Menus";
+import { useSearchParams } from "react-router-dom";
+import { useGetCabins } from "./useGetCabins";
 
 // const Table = styled.div`
 //   border: 1px solid var(--color-grey-200);
@@ -32,9 +32,35 @@ import Menus from "../../ui/Menus";
 
 function CabinTable() {
 
-  const { isLoading, data: cabins, error } = useQuery({
-    queryKey: ['cabins'],
-    queryFn: getCabins
+  const [searchParams] = useSearchParams();
+  let filteredCabins;
+  let sortedCabins;
+  const filterQuery = searchParams.get('discount') || 'all';
+  const sortQuery = searchParams.get('sortBy') || 'regularPrice-asc';
+  const [fieldToSort, direction] = sortQuery.split('-');
+  const modifier = direction === 'asc' ? 1 : -1;
+
+  const { cabins, isLoading } = useGetCabins();
+
+  // FILTERING
+  if (filterQuery === 'no-discount') {
+    filteredCabins = cabins?.filter(cabin => cabin.discount === 0)
+  } else if (filterQuery === 'with-discount') {
+    filteredCabins = cabins?.filter(cabin => cabin.discount > 0)
+  } else {
+    filteredCabins = cabins
+  }
+
+  // SORTING
+  sortedCabins = filteredCabins?.sort((a, b) => {
+    const valueA = a[fieldToSort];
+    const valueB = b[fieldToSort];
+
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return valueA.localeCompare(valueB) * modifier;
+    }
+
+    return (valueA - valueB) * modifier;
   })
 
 
@@ -50,7 +76,7 @@ function CabinTable() {
           <div>Price</div>
           <div>Discount</div>
         </Table.Header>
-        <Table.Body data={cabins} render={(cabin) => <CabinRow
+        <Table.Body data={sortedCabins} render={(cabin) => <CabinRow
           cabin={cabin}
           key={cabin.id}
         />} />

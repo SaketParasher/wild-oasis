@@ -10,6 +10,7 @@ const StyledCheckbox = styled.div`
     outline-offset: 2px;
     transform-origin: 0;
     accent-color: var(--color-brand-600);
+    cursor: pointer;
   }
 
   & input[type="checkbox"]:disabled {
@@ -22,6 +23,7 @@ const StyledCheckbox = styled.div`
     display: flex;
     align-items: center;
     gap: 0.8rem;
+    cursor: pointer;
   }
 `;
 

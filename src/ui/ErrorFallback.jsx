@@ -1,4 +1,7 @@
 import styled from "styled-components";
+import Button from "./Button";
+import Heading from "./Heading";
+import { useRouteError } from "react-router-dom";
 
 const StyledErrorFallback = styled.main`
   height: 100vh;
@@ -29,3 +32,19 @@ const Box = styled.div`
     color: var(--color-grey-500);
   }
 `;
+
+
+const ErrorFallback = () => {
+  const error = useRouteError()
+  return (
+    <StyledErrorFallback>
+      <Box>
+        <Heading as="h1">Something Went Wrong ! 🤔</Heading>
+        <p>{error.message}</p>
+        <Button size="medium" variation="primary" onClick={() => window.location.replace('/')}>Go To Home</Button>
+      </Box>
+    </StyledErrorFallback>
+  )
+}
+
+export default ErrorFallback

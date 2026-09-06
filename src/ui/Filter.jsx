@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 const StyledFilter = styled.div`
@@ -32,4 +33,32 @@ const FilterButton = styled.button`
     background-color: var(--color-brand-600);
     color: var(--color-brand-50);
   }
-`; 
+`;
+
+
+const Filter = ({ filterKey, filterValueOptions }) => {
+
+  // useSearchParams hook will be used set the filter in url , and then based on the "discount" url
+  //  query params cabins will be filtered from the table
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentFilterQuery = searchParams.get(filterKey) || filterValueOptions[0].value
+  const setCabinsFilterTerm = (filterTerm) => {
+    searchParams.set(filterKey, filterTerm)
+    if (searchParams.get('page')) searchParams.set('page', 1)
+    setSearchParams(searchParams)
+  }
+
+
+  return (
+    <StyledFilter>
+      {filterValueOptions.map(option => <FilterButton
+        onClick={() => setCabinsFilterTerm(option.value)}
+        active={currentFilterQuery === option.value}>
+        {option.label}
+      </FilterButton>)}
+    </StyledFilter>
+  )
+}
+
+export default Filter
